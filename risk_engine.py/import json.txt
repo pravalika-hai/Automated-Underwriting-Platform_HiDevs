@@ -1,0 +1,27 @@
+import json
+
+def load_rules():
+    with open("underwriting_rules.json") as f:
+        return json.load(f)
+
+def evaluate_risk(data, image, rules):
+    score = 0
+    reasons = []
+
+    if data["roof_condition"] == "Damaged":
+        score += rules["roof_damage"]
+        reasons.append("Roof damage found.")
+
+    if "Exposed Wiring" in data["fire_hazards"]:
+        score += rules["exposed_wiring"]
+        reasons.append("Fire hazard detected.")
+
+    if str(image["label_id"]) in rules["visual_flags"]:
+        score += rules["visual_flags"][str(image["label_id"])]
+        reasons.append("Visual anomaly detected.")
+
+    level = "Low"
+    if score >= 8: level = "High"
+    elif score >= 4: level = "Medium"
+
+    return {"score": score, "level": level, "reasons": reasons}

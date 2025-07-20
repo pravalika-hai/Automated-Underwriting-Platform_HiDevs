@@ -1,0 +1,24 @@
+import fitz
+import re
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
+
+def extract_text_from_pdf(path):
+    doc = fitz.open(path)
+    return "\n".join([page.get_text() for page in doc])
+
+def extract_fields(text):
+    doc = nlp(text)
+    out = {"property_address": "", "year_built": "", "roof_condition": "", "fire_hazards": []}
+    
+    for ent in doc.ents:
+        if ent.label_ == "GPE":
+            out["property_address"] = ent.text
+    
+    y = re.search(r"Year Built[:\\- ]+(\\d{4})", text)
+    if y: out["year_built"] = y.group(1)
+    if "roof damage" in text.lower(): out["roof_condition"] = "Damaged"
+    if "exposed wiring" in text.lower(): out["fire_hazards"].append("Exposed Wiring")
+
+    return out

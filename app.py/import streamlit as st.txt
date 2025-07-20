@@ -1,0 +1,26 @@
+import streamlit as st
+from document_parser import extract_text_from_pdf, extract_fields
+from image_analyzer import analyze_image
+from risk_engine import load_rules, evaluate_risk
+
+st.title("🏠 AI-Powered Property Underwriting")
+
+pdf_file = st.file_uploader("Upload Appraisal Report (PDF)", type="pdf")
+img_file = st.file_uploader("Upload Property Image", type=["jpg", "jpeg", "png"])
+
+if pdf_file and img_file:
+    with open("temp.pdf", "wb") as f: f.write(pdf_file.read())
+    with open("temp.jpg", "wb") as f: f.write(img_file.read())
+
+    text = extract_text_from_pdf("temp.pdf")
+    fields = extract_fields(text)
+    img_result = analyze_image("temp.jpg")
+    rules = load_rules()
+    result = evaluate_risk(fields, img_result, rules)
+
+    st.subheader("🏷️ Risk Evaluation")
+    st.write(f"**Level:** {result['level']}")
+    st.write(f"**Score:** {result['score']}")
+    st.write("**Reasons:**")
+    for r in result["reasons"]:
+        st.write(f"- {r}")

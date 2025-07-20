@@ -1,0 +1,8 @@
+{
+  "roof_damage": 5,
+  "exposed_wiring": 3,
+  "visual_flags": {
+    "30": 4,
+    "45": 2
+  }
+}
